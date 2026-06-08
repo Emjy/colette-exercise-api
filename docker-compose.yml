@@ -1,0 +1,29 @@
+# Postgres + PostGIS for local development and the test suite.
+#
+#   docker compose up -d      # start the database
+#   make setup                # deps + create/migrate/seed against it
+#
+# Uses the same image as CI (postgis/postgis:16-3.4) and the credentials in
+# config/dev.exs + config/test.exs (postgres / postgres on localhost:5432).
+# Set POSTGRES_PORT to map a different host port if 5432 is already in use.
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    # Bound to loopback: serves local mix/psql but is not reachable from the LAN
+    # (the postgres/postgres credentials are dev-only). Override the host part if
+    # you really need remote access.
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:

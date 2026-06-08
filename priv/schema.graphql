@@ -1,0 +1,74 @@
+schema {
+  mutation: RootMutationType
+  query: RootQueryType
+}
+
+type RootQueryType {
+  "List published, non-archived activities."
+  activities: [Activity!]!
+
+  "Fetch a single published, non-archived activity by slug (null if not visible)."
+  activity(slug: String!): Activity
+}
+
+type RootMutationType {
+  "Register the current member to an activity."
+  registerToActivity(input: RegisterToActivityInput!): RegisterToActivityPayload
+
+  "Unregister the current member from an activity (frees a seat)."
+  unregisterFromActivity(input: RegisterToActivityInput!): RegisterToActivityPayload
+}
+
+type User {
+  id: ID!
+  name: String!
+}
+
+type ActivityAttendance {
+  id: ID!
+  activity: Activity!
+}
+
+input RegisterToActivityInput {
+  activityId: ID!
+}
+
+type RegisterToActivityPayload {
+  attendance: ActivityAttendance
+}
+
+type Activity {
+  id: ID!
+
+  title: String!
+
+  slug: String!
+
+  description: String
+
+  startsAt: DateTime!
+
+  maxAttendees: Int!
+
+  creator: User
+
+  "The registered members (active attendances), loaded in a batch via Dataloader."
+  participants: [User!]!
+
+  "Number of active members, from the trigger-maintained attendee_count column."
+  attendanceCount: Int!
+
+  "Whether the current viewer has an active registration. False when not signed in."
+  viewerIsRegistered: Boolean!
+
+  "Remaining free seats (max_attendees - attendee_count, never negative)."
+  remainingSpots: Int!
+}
+
+"""
+The `DateTime` scalar type represents a date and time in the UTC
+timezone. The DateTime appears in a JSON response as an ISO8601 formatted
+string, including UTC timezone ("Z"). The parsed date and time string will
+be converted to UTC if there is an offset.
+"""
+scalar DateTime

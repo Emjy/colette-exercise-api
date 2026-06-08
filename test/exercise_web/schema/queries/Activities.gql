@@ -1,0 +1,11 @@
+query Activities {
+  activities {
+    id
+    title
+    attendanceCount
+    viewerIsRegistered
+    creator {
+      name
+    }
+  }
+}

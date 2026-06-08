@@ -1,0 +1,18 @@
+query Activity($slug: String!) {
+  activity(slug: $slug) {
+    id
+    title
+    slug
+    description
+    attendanceCount
+    remainingSpots
+    viewerIsRegistered
+    creator {
+      name
+    }
+    participants {
+      id
+      name
+    }
+  }
+}
