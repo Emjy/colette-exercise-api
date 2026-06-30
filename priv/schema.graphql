@@ -17,6 +17,9 @@ type RootMutationType {
 
   "Unregister the current member from an activity (frees a seat)."
   unregisterFromActivity(input: RegisterToActivityInput!): RegisterToActivityPayload
+
+  "Add the current member to the waiting list of a full activity."
+  joinWaitingList(input: JoinWaitingListInput!): JoinWaitingListPayload
 }
 
 type User {
@@ -29,12 +32,24 @@ type ActivityAttendance {
   activity: Activity!
 }
 
+type ActivityWaitingListEntry {
+  id: ID!
+}
+
 input RegisterToActivityInput {
   activityId: ID!
 }
 
 type RegisterToActivityPayload {
   attendance: ActivityAttendance
+}
+
+input JoinWaitingListInput {
+  activityId: ID!
+}
+
+type JoinWaitingListPayload {
+  waitingListEntry: ActivityWaitingListEntry
 }
 
 type Activity {
@@ -60,6 +75,9 @@ type Activity {
 
   "Whether the current viewer has an active registration. False when not signed in."
   viewerIsRegistered: Boolean!
+
+  "Whether the current viewer has an active waiting list entry. False when not signed in."
+  viewerIsOnWaitingList: Boolean!
 
   "Remaining free seats (max_attendees - attendee_count, never negative)."
   remainingSpots: Int!
