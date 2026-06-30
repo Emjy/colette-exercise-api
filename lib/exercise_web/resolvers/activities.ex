@@ -36,7 +36,8 @@ defmodule ExerciseWeb.Resolvers.Activities do
   def viewer_is_on_waiting_list(activity, _args, %{
         context: %{current_user: %{id: user_id}, loader: loader}
       }) do
-    batch_key = {:waiting_list_entries, %{query_fun: {&WaitingListQuery.for_user_unconverted/2, user_id}}}
+    batch_key =
+      {:waiting_list_entries, %{query_fun: {&WaitingListQuery.for_user_unconverted/2, user_id}}}
 
     loader
     |> Dataloader.load(GenericEcto, batch_key, activity)
