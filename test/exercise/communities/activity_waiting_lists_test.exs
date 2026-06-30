@@ -4,9 +4,11 @@ defmodule Exercise.Communities.ActivityWaitingListsTest do
 
   import Exercise.Factory
 
+  alias Exercise.Communities.ActivityAttendances
   alias Exercise.Communities.ActivityWaitingListEntries.Query
-  alias Exercise.Communities.ActivityWaitingLists
   alias Exercise.Communities.ActivityWaitingListEntry
+  alias Exercise.Communities.ActivityWaitingLists
+  alias Exercise.Communities.ActivityWaitingLists.NotificationWorker
   alias Exercise.Repo
 
   describe "join_waiting_list/2" do
@@ -107,11 +109,9 @@ defmodule Exercise.Communities.ActivityWaitingListsTest do
 
       {:ok, _} = ActivityWaitingLists.join_waiting_list(user, activity)
 
-      # Other member leaves, freeing a spot
-      Exercise.Communities.ActivityAttendances.unregister_from_activity(other, activity)
+      ActivityAttendances.unregister_from_activity(other, activity)
 
-      assert {:ok, _} =
-               Exercise.Communities.ActivityAttendances.register_to_activity(user, activity)
+      assert {:ok, _} = ActivityAttendances.register_to_activity(user, activity)
 
       entry =
         Query.base()
@@ -134,17 +134,17 @@ defmodule Exercise.Communities.ActivityWaitingListsTest do
       {:ok, _} = ActivityWaitingLists.join_waiting_list(member1, activity)
       {:ok, _} = ActivityWaitingLists.join_waiting_list(member2, activity)
 
-      Exercise.Communities.ActivityAttendances.unregister_from_activity(registered, activity)
+      ActivityAttendances.unregister_from_activity(registered, activity)
 
       execute_events()
 
       assert_enqueued(
-        worker: Exercise.Communities.ActivityWaitingLists.NotificationWorker,
+        worker: NotificationWorker,
         args: %{user_id: member1.id, activity_id: activity.id}
       )
 
       assert_enqueued(
-        worker: Exercise.Communities.ActivityWaitingLists.NotificationWorker,
+        worker: NotificationWorker,
         args: %{user_id: member2.id, activity_id: activity.id}
       )
     end
@@ -154,11 +154,11 @@ defmodule Exercise.Communities.ActivityWaitingListsTest do
       registered = insert(:user)
       insert(:activity_attendance, user: registered, activity: activity)
 
-      Exercise.Communities.ActivityAttendances.unregister_from_activity(registered, activity)
+      ActivityAttendances.unregister_from_activity(registered, activity)
 
       execute_events()
 
-      refute_enqueued(worker: Exercise.Communities.ActivityWaitingLists.NotificationWorker)
+      refute_enqueued(worker: NotificationWorker)
     end
 
     test "does not notify members whose entry was already converted" do
@@ -170,14 +170,11 @@ defmodule Exercise.Communities.ActivityWaitingListsTest do
       {:ok, entry} = ActivityWaitingLists.join_waiting_list(member, activity)
       Repo.update!(ActivityWaitingListEntry.convert_changeset(entry))
 
-      Exercise.Communities.ActivityAttendances.unregister_from_activity(registered, activity)
+      ActivityAttendances.unregister_from_activity(registered, activity)
 
       execute_events()
 
-      refute_enqueued(
-        worker: Exercise.Communities.ActivityWaitingLists.NotificationWorker,
-        args: %{user_id: member.id}
-      )
+      refute_enqueued(worker: NotificationWorker, args: %{user_id: member.id})
     end
   end
 end
