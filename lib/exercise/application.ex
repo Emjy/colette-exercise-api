@@ -13,6 +13,7 @@ defmodule Exercise.Application do
       {DNSCluster, query: Application.get_env(:exercise, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Exercise.PubSub},
       Exercise.EventBus,
+      Exercise.Communities.ActivityWaitingLists.NotificationHandler,
       {Oban, Application.fetch_env!(:exercise, Oban)},
       # Start to serve requests, typically the last entry
       ExerciseWeb.Endpoint
