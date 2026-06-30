@@ -5,6 +5,7 @@ defmodule Exercise.Factory do
   alias Exercise.Accounts.User
   alias Exercise.Communities.Activity
   alias Exercise.Communities.ActivityAttendance
+  alias Exercise.Communities.ActivityWaitingListEntry
 
   def user_factory do
     %User{
@@ -31,5 +32,9 @@ defmodule Exercise.Factory do
 
   def activity_attendance_factory do
     %ActivityAttendance{user: build(:user), activity: build(:activity)}
+  end
+
+  def activity_waiting_list_entry_factory do
+    %ActivityWaitingListEntry{user: build(:user), activity: build(:activity)}
   end
 end
