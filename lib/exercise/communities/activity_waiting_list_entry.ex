@@ -9,6 +9,8 @@ defmodule Exercise.Communities.ActivityWaitingListEntry do
   alias Exercise.Communities.Activity
   alias Exercise.Communities.ActivityAttendances.Query, as: AttendanceQuery
 
+  @derive {Jason.Encoder,
+           only: [:id, :user_id, :activity_id, :converted_at, :inserted_at, :updated_at]}
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "activity_waiting_list_entries" do

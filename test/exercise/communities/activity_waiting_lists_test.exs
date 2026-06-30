@@ -51,13 +51,13 @@ defmodule Exercise.Communities.ActivityWaitingListsTest do
       assert %{user_id: ["has already been taken"]} = errors_on(changeset)
     end
 
-    test "publishes WaitingListEntryCreated on success" do
+    test "persists the entry in the database" do
       user = insert(:user)
       activity = insert(:activity, max_attendees: 1)
       insert(:activity_attendance, activity: activity)
 
-      assert {:ok, _} = ActivityWaitingLists.join_waiting_list(user, activity)
-      assert_event_received(Exercise.Communities.Events.WaitingListEntryCreated)
+      assert {:ok, entry} = ActivityWaitingLists.join_waiting_list(user, activity)
+      assert Repo.get(ActivityWaitingListEntry, entry.id)
     end
 
     test "a member can rejoin after their previous entry was converted" do

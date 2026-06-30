@@ -8,6 +8,8 @@ defmodule Exercise.Communities.ActivityAttendance do
   alias Exercise.Communities.Activities.Query
   alias Exercise.Communities.Activity
 
+  @derive {Jason.Encoder,
+           only: [:id, :user_id, :activity_id, :deleted_at, :inserted_at, :updated_at]}
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "activity_attendances" do
