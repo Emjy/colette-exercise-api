@@ -51,5 +51,13 @@ defmodule ExerciseWeb.Schema do
       resolve(&Resolvers.Activities.unregister/3)
       middleware(ErrorHandler)
     end
+
+    @desc "Add the current member to the waiting list of a full activity."
+    field :join_waiting_list, :join_waiting_list_payload do
+      arg(:input, non_null(:join_waiting_list_input))
+      middleware(Authenticated)
+      resolve(&Resolvers.Activities.join_waiting_list/3)
+      middleware(ErrorHandler)
+    end
   end
 end

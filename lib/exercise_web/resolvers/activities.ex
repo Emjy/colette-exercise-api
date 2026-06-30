@@ -4,6 +4,7 @@ defmodule ExerciseWeb.Resolvers.Activities do
 
   alias Exercise.Communities
   alias Exercise.Communities.ActivityAttendances.Query, as: AttendanceQuery
+  alias Exercise.Communities.ActivityWaitingListEntries.Query, as: WaitingListQuery
   alias Exercise.Errors
   alias ExerciseWeb.Dataloaders.GenericEcto
 
@@ -32,6 +33,20 @@ defmodule ExerciseWeb.Resolvers.Activities do
 
   def viewer_is_registered(_activity, _args, _resolution), do: {:ok, false}
 
+  def viewer_is_on_waiting_list(activity, _args, %{
+        context: %{current_user: %{id: user_id}, loader: loader}
+      }) do
+    batch_key = {:waiting_list_entries, %{query_fun: {&WaitingListQuery.for_user_unconverted/2, user_id}}}
+
+    loader
+    |> Dataloader.load(GenericEcto, batch_key, activity)
+    |> on_load(fn loaded ->
+      {:ok, Dataloader.get(loaded, GenericEcto, batch_key, activity) != []}
+    end)
+  end
+
+  def viewer_is_on_waiting_list(_activity, _args, _resolution), do: {:ok, false}
+
   def get_activity(_parent, %{slug: slug}, _resolution) do
     {:ok, Communities.get_visible_by_slug(slug)}
   end
@@ -47,6 +62,13 @@ defmodule ExerciseWeb.Resolvers.Activities do
     with {:ok, activity} <- fetch_visible(id),
          {:ok, attendance} <- Communities.unregister_from_activity(user, activity) do
       {:ok, %{attendance: attendance}}
+    end
+  end
+
+  def join_waiting_list(_parent, %{input: %{activity_id: id}}, %{context: %{current_user: user}}) do
+    with {:ok, activity} <- fetch_visible(id),
+         {:ok, entry} <- Communities.join_waiting_list(user, activity) do
+      {:ok, %{waiting_list_entry: entry}}
     end
   end
 

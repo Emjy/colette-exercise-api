@@ -17,6 +17,18 @@ defmodule ExerciseWeb.Schema.Types do
     field :activity, non_null(:activity), resolve: dataloader(GenericEcto)
   end
 
+  object :activity_waiting_list_entry do
+    field :id, non_null(:id)
+  end
+
+  input_object :join_waiting_list_input do
+    field :activity_id, non_null(:id)
+  end
+
+  object :join_waiting_list_payload do
+    field :waiting_list_entry, :activity_waiting_list_entry
+  end
+
   input_object :register_to_activity_input do
     field :activity_id, non_null(:id)
   end
@@ -46,6 +58,11 @@ defmodule ExerciseWeb.Schema.Types do
     @desc "Whether the current viewer has an active registration. False when not signed in."
     field :viewer_is_registered, non_null(:boolean) do
       resolve(&Resolvers.Activities.viewer_is_registered/3)
+    end
+
+    @desc "Whether the current viewer has an active waiting list entry. False when not signed in."
+    field :viewer_is_on_waiting_list, non_null(:boolean) do
+      resolve(&Resolvers.Activities.viewer_is_on_waiting_list/3)
     end
 
     @desc "Remaining free seats (max_attendees - attendee_count, never negative)."
