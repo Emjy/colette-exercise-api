@@ -4,6 +4,7 @@ defmodule Exercise.Communities.Events do
 
   defevents([
     AttendanceCreated,
-    AttendanceDeleted
+    AttendanceDeleted,
+    WaitingListEntryCreated
   ])
 end
