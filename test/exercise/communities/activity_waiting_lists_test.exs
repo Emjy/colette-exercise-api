@@ -1,6 +1,7 @@
 defmodule Exercise.Communities.ActivityWaitingListsTest do
   use Exercise.DataCase, async: true
   use ExEventBus.Testing, ex_event_bus: Exercise.EventBus
+  use Oban.Testing, repo: Exercise.Repo
 
   import Exercise.Factory
 
