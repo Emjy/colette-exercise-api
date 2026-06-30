@@ -20,11 +20,10 @@ defmodule Exercise.Communities.ActivityWaitingLists.NotificationHandler do
     |> Query.with_activity_id(activity_id)
     |> Query.unconverted()
     |> Repo.all()
-    |> Enum.each(fn entry ->
-      %{user_id: entry.user_id, activity_id: entry.activity_id}
-      |> NotificationWorker.new()
-      |> Oban.insert()
+    |> Enum.map(fn entry ->
+      NotificationWorker.new(%{user_id: entry.user_id, activity_id: entry.activity_id})
     end)
+    |> Oban.insert_all()
 
     :ok
   end

@@ -33,12 +33,18 @@ defmodule Exercise.Communities.ActivityAttendances do
       |> ActivityAttendance.changeset(%{user_id: user.id, activity_id: activity.id})
       |> Repo.insert(success_event: Events.AttendanceCreated, event_opts: [])
 
-    case result do
-      {:ok, _} -> ActivityWaitingLists.convert_entry(user, activity)
-      _ -> :ok
-    end
+    with {:ok, attendance} <- result do
+      case ActivityWaitingLists.convert_entry(user, activity) do
+        {:ok, _} ->
+          :ok
 
-    result
+        {:error, reason} ->
+          require Logger
+          Logger.warning("convert_entry failed after registration: #{inspect(reason)}")
+      end
+
+      {:ok, attendance}
+    end
   end
 
   @doc """
