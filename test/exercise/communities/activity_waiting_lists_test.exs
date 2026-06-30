@@ -110,7 +110,8 @@ defmodule Exercise.Communities.ActivityWaitingListsTest do
       # Other member leaves, freeing a spot
       Exercise.Communities.ActivityAttendances.unregister_from_activity(other, activity)
 
-      assert {:ok, _} = Exercise.Communities.ActivityAttendances.register_to_activity(user, activity)
+      assert {:ok, _} =
+               Exercise.Communities.ActivityAttendances.register_to_activity(user, activity)
 
       entry =
         Query.base()
