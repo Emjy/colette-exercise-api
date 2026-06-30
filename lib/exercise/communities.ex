@@ -6,6 +6,7 @@ defmodule Exercise.Communities do
   """
   alias Exercise.Communities.Activities
   alias Exercise.Communities.ActivityAttendances
+  alias Exercise.Communities.ActivityWaitingLists
 
   ## Activities
 
@@ -18,4 +19,8 @@ defmodule Exercise.Communities do
   defdelegate attendance_count(activity), to: ActivityAttendances
   defdelegate register_to_activity(user, activity), to: ActivityAttendances
   defdelegate unregister_from_activity(user, activity), to: ActivityAttendances
+
+  ## ActivityWaitingLists
+
+  defdelegate join_waiting_list(user, activity), to: ActivityWaitingLists
 end

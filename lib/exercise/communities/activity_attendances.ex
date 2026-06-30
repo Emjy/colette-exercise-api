@@ -7,6 +7,7 @@ defmodule Exercise.Communities.ActivityAttendances do
   alias Exercise.Communities.Activity
   alias Exercise.Communities.ActivityAttendance
   alias Exercise.Communities.ActivityAttendances.Query
+  alias Exercise.Communities.ActivityWaitingLists
   alias Exercise.Communities.Events
   alias Exercise.Errors
   alias Exercise.Repo
@@ -27,9 +28,17 @@ defmodule Exercise.Communities.ActivityAttendances do
   error; the web layer turns either into a `ValidationError`. Publishes `AttendanceCreated`.
   """
   def register_to_activity(user, activity) do
-    %ActivityAttendance{}
-    |> ActivityAttendance.changeset(%{user_id: user.id, activity_id: activity.id})
-    |> Repo.insert(success_event: Events.AttendanceCreated, event_opts: [])
+    result =
+      %ActivityAttendance{}
+      |> ActivityAttendance.changeset(%{user_id: user.id, activity_id: activity.id})
+      |> Repo.insert(success_event: Events.AttendanceCreated, event_opts: [])
+
+    case result do
+      {:ok, _} -> ActivityWaitingLists.convert_entry(user, activity)
+      _ -> :ok
+    end
+
+    result
   end
 
   @doc """

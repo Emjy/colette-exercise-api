@@ -6,6 +6,7 @@ defmodule Exercise.Communities.Activity do
 
   alias Exercise.Accounts.User
   alias Exercise.Communities.ActivityAttendance
+  alias Exercise.Communities.ActivityWaitingListEntry
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -26,8 +27,8 @@ defmodule Exercise.Communities.Activity do
 
     belongs_to :creator, User
     has_many :attendances, ActivityAttendance, where: [deleted_at: nil]
-    # Registered members: the users behind the active (non-soft-deleted) attendances.
     has_many :participants, through: [:attendances, :user]
+    has_many :waiting_list_entries, ActivityWaitingListEntry, where: [converted_at: nil]
 
     timestamps(type: :utc_datetime_usec)
   end
